@@ -19,7 +19,7 @@ import {
 } from 'viem/chains'
 
 import { ConnectWalletActions, connectWalletActions } from '../customActions'
-import { musterTestnet } from '../customChains'
+import { musterTestnet, redstoneHolesky } from '../customChains'
 
 const supportedChains = [
   polygon,
@@ -30,7 +30,8 @@ const supportedChains = [
   gnosisChiado,
   polygonZkEvm,
   polygonZkEvmTestnet,
-  musterTestnet
+  musterTestnet,
+  redstoneHolesky
 ]
 
 export type ComethClient = PublicClient<Transport, Chain> & ConnectWalletActions
