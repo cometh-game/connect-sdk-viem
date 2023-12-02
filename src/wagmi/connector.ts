@@ -1,0 +1,100 @@
+import {
+  ComethWallet,
+  ConnectAdaptor,
+  SupportedNetworks
+} from '@cometh/connect-sdk'
+import { a } from '@wagmi/connectors/dist/base-e6cfa360'
+import { toHex } from 'viem'
+import { Chain, Connector } from 'wagmi'
+
+import {
+  ConnectClient,
+  getConnectViemClient
+} from '../client/getConnectViemClient'
+
+function _isSupportedNetwork(value: string): value is SupportedNetworks {
+  return Object.values(SupportedNetworks).includes(value as any)
+}
+
+export class ComethConnectConnector extends Connector {
+  id = 'cometh-connect'
+  name = 'Cometh Connect'
+  ready = true
+  wallet: ComethWallet
+  client: ConnectClient
+
+  constructor(apiKey: string, chain: Chain, baseUrl?: string) {
+    super({
+      options: {
+        shimDisconnect: true
+      }
+    })
+    const chainId = toHex(chain.id)
+
+    if (_isSupportedNetwork(chainId)) {
+      this.wallet = new ComethWallet({
+        authAdapter: new ConnectAdaptor({
+          chainId,
+          apiKey,
+          baseUrl
+        }),
+        apiKey,
+        baseUrl
+      })
+
+      this.client = getConnectViemClient(this.wallet)
+    } else {
+      throw new Error('Network not supported')
+    }
+  }
+
+  async connect(): Promise<Required<a>> {
+    const localStorageAddress = window.localStorage.getItem('walletAddress')
+
+    if (localStorageAddress) {
+      await this.wallet.connect(localStorageAddress)
+    } else {
+      await this.wallet.connect()
+      const walletAddress = await this.wallet.getAddress()
+      window.localStorage.setItem('walletAddress', walletAddress)
+    }
+
+    return {
+      account: this.wallet.getAddress() as `0x${string}`,
+      chain: {
+        id: this.wallet.chainId,
+        unsupported: false
+      }
+    }
+  }
+  disconnect(): Promise<void> {
+    return this.wallet.logout()
+  }
+  async getAccount(): Promise<`0x${string}`> {
+    return this.wallet.getAddress() as `0x${string}`
+  }
+  async getChainId(): Promise<number> {
+    return await this.wallet.chainId
+  }
+  async getProvider(): Promise<ConnectClient> {
+    return this.client
+  }
+  async getWalletClient(): Promise<any> {
+    return this.client
+  }
+  async isAuthorized(): Promise<boolean> {
+    return false
+  }
+  protected onAccountsChanged(): void {
+    throw new Error('method is not available')
+    return
+  }
+  protected onChainChanged(): void {
+    throw new Error('method is not available')
+    return
+  }
+  protected onDisconnect(): void {
+    throw new Error('method is not available')
+    return
+  }
+}

@@ -1,26 +1,45 @@
-import { deepHexlify } from '@alchemy/aa-core'
-import { ComethWallet, SendTransactionResponse } from '@cometh/connect-sdk'
-import { Hash } from 'viem'
+import { ComethWallet } from '@cometh/connect-sdk'
+import {
+  Account,
+  Chain,
+  Client,
+  Hash,
+  SendTransactionParameters,
+  SendTransactionReturnType,
+  Transport
+} from 'viem'
 
-import { isMetaTransactionArray } from '../utils/utils'
+import { getTransaction } from '../customActions/getTransaction'
 
-export type MetaTransaction = {
-  readonly to: string
-  readonly value: bigint
-  readonly data: string
+export type SendTransactionWithConnectParameters<
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TChainOverride extends Chain | undefined = Chain | undefined
+> = SendTransactionParameters<TChain, TAccount, TChainOverride> & {
+  wallet: ComethWallet
 }
 
-export const sendTransaction = async (
-  wallet: ComethWallet,
-  safeTxData: MetaTransaction | MetaTransaction[]
-): Promise<Hash> => {
-  let result: SendTransactionResponse
-  const formattedTxData = deepHexlify(safeTxData)
-  if (isMetaTransactionArray(formattedTxData)) {
-    result = await wallet.sendBatchTransactions(formattedTxData)
-  } else {
-    result = await wallet.sendTransaction(formattedTxData)
-  }
+export async function sendTransaction<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+  TChainOverride extends Chain | undefined
+>(
+  client: Client<Transport, TChain, TAccount>,
+  args: SendTransactionWithConnectParameters<TChain, TAccount, TChainOverride>
+): Promise<SendTransactionReturnType> {
+  const { data, to, wallet } = args
 
-  return result.safeTxHash as Hash
+  const result = await wallet.sendTransaction({
+    to: to as string,
+    value: '0x00',
+    data: data as string
+  })
+
+  const txReceipt = await getTransaction(
+    client,
+    wallet,
+    result.safeTxHash as Hash
+  )
+
+  return txReceipt.transactionHash as Hash
 }

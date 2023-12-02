@@ -55,7 +55,7 @@ const _catchFailureEvent = async (
 }
 
 export const getTransaction = async (
-  client: PublicClient<Transport, Chain>,
+  client: any,
   wallet: ComethWallet,
   safeTxHash: Hash
 ): Promise<TransactionReceipt> => {
