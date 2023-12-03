@@ -4,6 +4,7 @@ export const sleep = async (msInterval: number): Promise<void> => {
   return await new Promise((resolve) => setTimeout(resolve, msInterval))
 }
 
+/* eslint-disable */
 export function deepHexlify(obj: any): any {
   if (typeof obj === 'function') {
     return undefined
@@ -19,7 +20,7 @@ export function deepHexlify(obj: any): any {
     return obj.map((member) => deepHexlify(member))
   }
   return Object.keys(obj).reduce(
-    // biome-ignore lint/suspicious/noExplicitAny: it's a recursive function, so it's hard to type
+    /* eslint-disable */
     (set: any, key: string) => {
       set[key] = deepHexlify(obj[key])
       return set

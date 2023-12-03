@@ -2,7 +2,7 @@ import { Chain, Wallet } from '@rainbow-me/rainbowkit'
 
 import { ComethConnectConnector } from '../connector'
 
-export interface RainbowConnectorParams {
+export interface RainbowKitConnectorParams {
   apiKey: string
   chain: Chain
   baseUrl?: string
@@ -12,7 +12,7 @@ export const rainbowComethConnect = ({
   apiKey,
   chain,
   baseUrl
-}: RainbowConnectorParams): Wallet => ({
+}: RainbowKitConnectorParams): Wallet => ({
   id: 'cometh-connect',
   name: 'Cometh Connect',
   iconUrl:
@@ -21,7 +21,7 @@ export const rainbowComethConnect = ({
   /* eslint-disable */
   createConnector: () => {
     return {
-      connector: new ComethConnectConnector(apiKey, chain, baseUrl)
+      connector: new ComethConnectConnector({ apiKey, chain, baseUrl })
     }
   }
 })

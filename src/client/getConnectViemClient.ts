@@ -4,7 +4,6 @@ import {
   Chain,
   Client,
   createPublicClient,
-  extractChain,
   http,
   Transport
 } from 'viem'
@@ -55,10 +54,9 @@ export const getConnectViemClient = (
   wallet: ComethWallet,
   rpc?: string
 ): ConnectClient => {
-  const chain: Chain = extractChain({
-    chains: supportedChains,
-    id: wallet.chainId as any
-  })
+  const chain = supportedChains.find(
+    (chain) => chain.id === wallet.chainId
+  ) as Chain
 
   return createPublicClient({
     chain,

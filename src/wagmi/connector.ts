@@ -12,6 +12,12 @@ import {
   getConnectViemClient
 } from '../client/getConnectViemClient'
 
+export interface WagmiConfigConnectorParams {
+  apiKey: string
+  chain: Chain
+  baseUrl?: string
+}
+
 function _isSupportedNetwork(value: string): value is SupportedNetworks {
   return Object.values(SupportedNetworks).includes(value as any)
 }
@@ -23,7 +29,7 @@ export class ComethConnectConnector extends Connector {
   wallet: ComethWallet
   client: ConnectClient
 
-  constructor(apiKey: string, chain: Chain, baseUrl?: string) {
+  constructor({ apiKey, chain, baseUrl }: WagmiConfigConnectorParams) {
     super({
       options: {
         shimDisconnect: true
@@ -79,22 +85,23 @@ export class ComethConnectConnector extends Connector {
   async getProvider(): Promise<ConnectClient> {
     return this.client
   }
-  async getWalletClient(): Promise<any> {
-    return this.client
-  }
-  async isAuthorized(): Promise<boolean> {
-    return false
-  }
-  protected onAccountsChanged(): void {
-    throw new Error('method is not available')
-    return
-  }
-  protected onChainChanged(): void {
-    throw new Error('method is not available')
-    return
-  }
-  protected onDisconnect(): void {
-    throw new Error('method is not available')
-    return
-  }
+  /* eslint-disable */
+    async getWalletClient(): Promise<any> {
+        return this.client
+    }
+    async isAuthorized(): Promise<boolean> {
+        return false
+    }
+    protected onAccountsChanged(): void {
+        throw new Error('method is not available')
+        return
+    }
+    protected onChainChanged(): void {
+        throw new Error('method is not available')
+        return
+    }
+    protected onDisconnect(): void {
+        throw new Error('method is not available')
+        return
+    }
 }
