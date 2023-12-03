@@ -14,7 +14,7 @@ import {
 
 export interface WagmiConfigConnectorParams {
   apiKey: string
-  chain: Chain
+  walletAddress?: string
   baseUrl?: string
 }
 
@@ -22,20 +22,35 @@ function _isSupportedNetwork(value: string): value is SupportedNetworks {
   return Object.values(SupportedNetworks).includes(value as any)
 }
 
-export class ComethConnectConnector extends Connector {
+export class ComethConnectConnector extends Connector<
+  undefined,
+  WagmiConfigConnectorParams
+> {
   id = 'cometh-connect'
   name = 'Cometh Connect'
   ready = true
   wallet: ComethWallet
   client: ConnectClient
+  walletAddress?: string
 
-  constructor({ apiKey, chain, baseUrl }: WagmiConfigConnectorParams) {
+  constructor({
+    chains,
+    options: options_
+  }: {
+    chains?: Chain[]
+    options: WagmiConfigConnectorParams
+  }) {
+    const options = {
+      shimDisconnect: false,
+      ...options_
+    }
     super({
-      options: {
-        shimDisconnect: true
-      }
+      chains,
+      options
     })
-    const chainId = toHex(chain.id)
+    const { apiKey, baseUrl, walletAddress } = options
+
+    const chainId = toHex(this.chains[0].id)
 
     if (_isSupportedNetwork(chainId)) {
       this.wallet = new ComethWallet({
@@ -49,20 +64,26 @@ export class ComethConnectConnector extends Connector {
       })
 
       this.client = getConnectViemClient(this.wallet)
+      this.walletAddress = walletAddress
     } else {
       throw new Error('Network not supported')
     }
   }
 
   async connect(): Promise<Required<a>> {
-    const localStorageAddress = window.localStorage.getItem('walletAddress')
-
-    if (localStorageAddress) {
-      await this.wallet.connect(localStorageAddress)
+    if (this.walletAddress) {
+      await this.wallet.connect(this.walletAddress)
+      window.localStorage.setItem('walletAddress', this.walletAddress)
     } else {
-      await this.wallet.connect()
-      const walletAddress = await this.wallet.getAddress()
-      window.localStorage.setItem('walletAddress', walletAddress)
+      const localStorageAddress = window.localStorage.getItem('walletAddress')
+
+      if (localStorageAddress) {
+        await this.wallet.connect(localStorageAddress)
+      } else {
+        await this.wallet.connect()
+        const walletAddress = await this.wallet.getAddress()
+        window.localStorage.setItem('walletAddress', walletAddress)
+      }
     }
 
     return {
@@ -82,10 +103,11 @@ export class ComethConnectConnector extends Connector {
   async getChainId(): Promise<number> {
     return await this.wallet.chainId
   }
-  async getProvider(): Promise<ConnectClient> {
-    return this.client
-  }
   /* eslint-disable */
+    async getProvider(): Promise<any> {
+        return this.client
+    }
+    /* eslint-disable */
     async getWalletClient(): Promise<any> {
         return this.client
     }

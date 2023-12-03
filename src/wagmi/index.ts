@@ -1,2 +1,2 @@
 export * from './connector'
-export * from './rainbow/connector'
+export * from './rainbowkit/connector'
