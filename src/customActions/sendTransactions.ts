@@ -1,4 +1,3 @@
-import { deepHexlify } from '@alchemy/aa-core'
 import { ComethWallet } from '@cometh/connect-sdk'
 import {
   Account,
@@ -11,6 +10,8 @@ import {
   Transport
 } from 'viem'
 import { GetAccountParameter } from 'viem/_types/types/account'
+
+import { deepHexlify } from '../utils/utils'
 
 export type SendTransactionsWithConnectParameters<
   TAccount extends Account | undefined = Account | undefined
@@ -29,8 +30,6 @@ export async function sendTransactions<
 ): Promise<SendTransactionReturnType> {
   const { transactions, wallet } = args
 
-  const formattedTransactions = deepHexlify(transactions)
-
-  const result = await wallet.sendBatchTransactions(formattedTransactions)
+  const result = await wallet.sendBatchTransactions(deepHexlify(transactions))
   return result.safeTxHash as Hash
 }

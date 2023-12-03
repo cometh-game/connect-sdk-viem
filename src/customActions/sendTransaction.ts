@@ -10,6 +10,7 @@ import {
 } from 'viem'
 
 import { getTransaction } from '../customActions/getTransaction'
+import { deepHexlify } from '../utils/utils'
 
 export type SendTransactionWithConnectParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -27,13 +28,15 @@ export async function sendTransaction<
   client: Client<Transport, TChain, TAccount>,
   args: SendTransactionWithConnectParameters<TChain, TAccount, TChainOverride>
 ): Promise<SendTransactionReturnType> {
-  const { data, to, wallet } = args
+  const { to, value, data, wallet } = args
 
-  const result = await wallet.sendTransaction({
-    to: to as string,
-    value: '0x00',
-    data: data as string
-  })
+  const result = await wallet.sendTransaction(
+    deepHexlify({
+      to: to,
+      value: value || '0x00',
+      data: data || '0x00'
+    })
+  )
 
   const txReceipt = await getTransaction(
     client,
