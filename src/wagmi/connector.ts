@@ -48,7 +48,7 @@ export class ComethConnectConnector extends Connector<
       chains,
       options
     })
-    const { apiKey, baseUrl, walletAddress } = options
+    const { apiKey, baseUrl, walletAddress } = this.options
 
     const chainId = toHex(this.chains[0].id)
 
@@ -104,26 +104,26 @@ export class ComethConnectConnector extends Connector<
     return await this.wallet.chainId
   }
   /* eslint-disable */
-    async getProvider(): Promise<any> {
-        return this.client
-    }
-    /* eslint-disable */
-    async getWalletClient(): Promise<any> {
-        return this.client
-    }
-    async isAuthorized(): Promise<boolean> {
-        return false
-    }
-    protected onAccountsChanged(): void {
-        throw new Error('method is not available')
-        return
-    }
-    protected onChainChanged(): void {
-        throw new Error('method is not available')
-        return
-    }
-    protected onDisconnect(): void {
-        throw new Error('method is not available')
-        return
-    }
+  async getProvider(): Promise<any> {
+    return this.client
+  }
+  /* eslint-disable */
+  async getWalletClient(): Promise<any> {
+    return this.client
+  }
+  async isAuthorized(): Promise<boolean> {
+    return false
+  }
+  protected onAccountsChanged(): void {
+    throw new Error('method is not available')
+    return
+  }
+  protected onChainChanged(): void {
+    throw new Error('method is not available')
+    return
+  }
+  protected onDisconnect(): void {
+    throw new Error('method is not available')
+    return
+  }
 }
