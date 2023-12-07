@@ -38,11 +38,11 @@ export async function sendTransaction<
     })
   )
 
-  const txReceipt = await getTransaction(
+  const txReceipt = await getTransaction({
     client,
     wallet,
-    result.safeTxHash as Hash
-  )
+    safeTxHash: result.safeTxHash as Hash
+  })
 
   return txReceipt.transactionHash as Hash
 }

@@ -63,7 +63,7 @@ export class ComethConnectConnector extends Connector<
         baseUrl
       })
 
-      this.client = getConnectViemClient(this.wallet)
+      this.client = getConnectViemClient({ wallet: this.wallet })
       this.walletAddress = walletAddress
     } else {
       throw new Error('Network not supported')

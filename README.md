@@ -70,7 +70,7 @@ const wallet = new ComethWallet({
 
 await wallet.connect()
 
-const connectViemClient = getConnectViemClient(wallet)
+const connectViemClient = getConnectViemClient({ wallet })
 ```
 
 ## Available Client methods
@@ -93,7 +93,7 @@ const txCallData = encodeFunctionData({
 })
 
 const tx = { to: DESTINATION, value: VALUE, data: txCallData }
-const hash = await connectViemClient.sendTransaction(tx)
+const txHash = await connectViemClient.sendTransaction(tx)
 ```
 
 This function relays the transaction data to the target address. The transaction fees can be sponsored.
@@ -105,18 +105,10 @@ const txBatch = [
   { to: DESTINATION, value: VALUE, data: txCallData },
   { to: DESTINATION, value: VALUE, data: txCallData }
 ]
-const hash = await connectViemClient.sendTransaction(tx)
+const txHash = await connectViemClient.sendTransaction(tx)
 ```
 
 This function relays a batch of transaction data to the targeted addresses. The transaction fees can be sponsored as well.
-
-### Get Transaction Receipt
-
-```javascript
-const receipt = await connectViemClient.getTransaction(hash)
-```
-
-This function allows you to retrieve the transaction receipt.
 
 ## Instanciate a Connect Viem Account
 

@@ -10,6 +10,7 @@ import {
   Transport
 } from 'viem'
 
+import { ConnectClient } from '../client'
 import { sleep } from '../utils/utils'
 
 const _catchSuccessEvent = async (
@@ -54,11 +55,15 @@ const _catchFailureEvent = async (
   return filteredTransactionEvent
 }
 
-export const getTransaction = async (
-  client: any,
-  wallet: ComethWallet,
+export const getTransaction = async ({
+  client,
+  wallet,
+  safeTxHash
+}: {
+  client: any
+  wallet: ComethWallet
   safeTxHash: Hash
-): Promise<TransactionReceipt> => {
+}): Promise<TransactionReceipt> => {
   const currentBlockNumber = await client.getBlockNumber()
   const from = wallet.getAddress() as Address
 
@@ -113,5 +118,5 @@ export const getTransaction = async (
   }
 
   sleep(2000)
-  return getTransaction(client, wallet, safeTxHash)
+  return getTransaction({ client, wallet, safeTxHash })
 }

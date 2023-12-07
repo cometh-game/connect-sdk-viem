@@ -50,10 +50,15 @@ export type ConnectClient<
   >
 >
 
-export const getConnectViemClient = (
-  wallet: ComethWallet,
+export type ConnectClientParams = {
+  wallet: ComethWallet
   rpc?: string
-): ConnectClient => {
+}
+
+export const getConnectViemClient = ({
+  wallet,
+  rpc
+}: ConnectClientParams): ConnectClient => {
   const chain = supportedChains.find(
     (chain) => chain.id === wallet.chainId
   ) as Chain
