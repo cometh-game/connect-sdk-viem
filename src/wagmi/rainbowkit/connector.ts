@@ -5,6 +5,7 @@ import { ComethConnectConnector } from '../connector'
 export interface RainbowKitConnectorParams {
   apiKey: string
   chain: Chain
+  disableEoaFallback?: boolean
   walletAddress?: string
   baseUrl?: string
 }
@@ -12,6 +13,7 @@ export interface RainbowKitConnectorParams {
 export const rainbowkitComethConnect = ({
   apiKey,
   chain,
+  disableEoaFallback,
   walletAddress,
   baseUrl
 }: RainbowKitConnectorParams): Wallet => ({
@@ -23,7 +25,10 @@ export const rainbowkitComethConnect = ({
   /* eslint-disable */
   createConnector: () => {
     return {
-      connector: new ComethConnectConnector({ chains: [chain], options: { apiKey, walletAddress, baseUrl } })
+      connector: new ComethConnectConnector({
+        chains: [chain],
+        options: { apiKey, disableEoaFallback, walletAddress, baseUrl }
+      })
     }
   }
 })

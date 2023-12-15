@@ -14,6 +14,7 @@ import {
 
 export interface WagmiConfigConnectorParams {
   apiKey: string
+  disableEoaFallback?: boolean
   walletAddress?: string
   baseUrl?: string
 }
@@ -48,7 +49,7 @@ export class ComethConnectConnector extends Connector<
       chains,
       options
     })
-    const { apiKey, baseUrl, walletAddress } = this.options
+    const { apiKey, disableEoaFallback, baseUrl, walletAddress } = this.options
 
     const chainId = toHex(this.chains[0].id)
 
@@ -57,6 +58,7 @@ export class ComethConnectConnector extends Connector<
         authAdapter: new ConnectAdaptor({
           chainId,
           apiKey,
+          disableEoaFallback,
           baseUrl
         }),
         apiKey,
