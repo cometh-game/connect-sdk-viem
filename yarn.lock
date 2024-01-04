@@ -384,10 +384,10 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
-"@cometh/connect-sdk@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@cometh/connect-sdk/-/connect-sdk-1.2.3.tgz#168a55a92339c071e45291194e25dadba56e35c6"
-  integrity sha512-Vzxu9F6gG3tboyYdkZqKM6f2yLqPeAdP7br/1iGuqzf5VOgkk8Ec4XxhfBqzXTRSEpqlN8pxQo65iJEPiD5s4A==
+"@cometh/connect-sdk@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@cometh/connect-sdk/-/connect-sdk-1.2.4.tgz#f5c7993a008f513d73349955cdb3dd4410b60761"
+  integrity sha512-/CmQtGJF8pOO2qvUPoL9lx5h4JOnBx4keE8dVFreVW0CUIkcJnpPFKO9z8gImQrIon7OVx4hEbtHCmUrF9E+eA==
   dependencies:
     "@alembic/ui" "^1.5.4"
     "@babel/traverse" "^7.23.4"
