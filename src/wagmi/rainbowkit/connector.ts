@@ -1,4 +1,4 @@
-import { UIConfig } from '@cometh/connect-sdk'
+import { UIConfig, webAuthnOptions } from '@cometh/connect-sdk'
 import { Chain, Wallet } from '@rainbow-me/rainbowkit'
 
 import { ComethConnectConnector } from '../connector'
@@ -6,19 +6,27 @@ import { ComethConnectConnector } from '../connector'
 export interface RainbowKitConnectorParams {
   apiKey: string
   chain: Chain
-  disableEoaFallback?: boolean
   walletAddress?: string
+  disableEoaFallback?: boolean
+  encryptionSalt?: string
+  webAuthnOptions?: webAuthnOptions
+  passKeyName?: string
   uiConfig?: UIConfig
   baseUrl?: string
+  rpcUrl?: string
 }
 
 export const rainbowkitComethConnect = ({
   apiKey,
   chain,
-  disableEoaFallback,
   walletAddress,
+  disableEoaFallback,
+  encryptionSalt,
+  webAuthnOptions,
+  passKeyName,
   uiConfig,
-  baseUrl
+  baseUrl,
+  rpcUrl
 }: RainbowKitConnectorParams): Wallet => ({
   id: 'cometh-connect',
   name: 'Cometh Connect',
@@ -30,7 +38,7 @@ export const rainbowkitComethConnect = ({
     return {
       connector: new ComethConnectConnector({
         chains: [chain],
-        options: { apiKey, disableEoaFallback, walletAddress, uiConfig, baseUrl }
+        options: { apiKey, walletAddress, disableEoaFallback, encryptionSalt, webAuthnOptions, passKeyName, uiConfig, rpcUrl, baseUrl }
       })
     }
   }
