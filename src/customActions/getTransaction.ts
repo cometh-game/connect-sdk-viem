@@ -10,7 +10,6 @@ import {
   Transport
 } from 'viem'
 
-import { ConnectClient } from '../client'
 import { sleep } from '../utils/utils'
 
 const _catchSuccessEvent = async (

@@ -5,6 +5,7 @@ import {
   Chain,
   Client,
   SendTransactionParameters,
+  SimulateContractParameters,
   Transport,
   WriteContractParameters
 } from 'viem'
@@ -15,6 +16,7 @@ import {
   SendTransactionWithConnectParameters
 } from './sendTransaction'
 import { sendTransactions, SendTransactionsWithConnectParameters } from './sendTransactions'
+import { simulateContract, SimulateContractWithConnectParameters } from './simulateContract'
 import {
   writeContract,
   WriteContractWithConnectParameters
@@ -193,6 +195,23 @@ export type ComethAccountActions<
   sendTransactions: (
     args: SendTransactionsWithConnectParameters<TSmartAccount>
   ) => ReturnType<typeof sendTransactions<TChain, TSmartAccount>>,
+
+  simulateContract: <
+    TChain extends Chain | undefined,
+    const TAbi extends Abi | readonly unknown[],
+    TFunctionName extends string,
+    TChainOverride extends Chain | undefined = undefined,
+  >(
+    args: SimulateContractParameters<
+      TAbi,
+      TFunctionName,
+      TChain,
+      TChainOverride
+    >
+  ) => ReturnType<
+    any
+  >
+
 }
 
 
@@ -219,7 +238,12 @@ export const connectWalletActions =
         writeContract(client, {
           ...args,
           wallet
-        } as WriteContractWithConnectParameters)
+        } as WriteContractWithConnectParameters),
+      simulateContract: (args) =>
+        simulateContract(client, {
+          ...args,
+          wallet
+        } as SimulateContractWithConnectParameters)
     })
 
-export { getTransaction, sendTransaction, sendTransactions, writeContract }
+export { getTransaction, sendTransaction, sendTransactions, simulateContract, writeContract }
