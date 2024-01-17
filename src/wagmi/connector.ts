@@ -109,7 +109,8 @@ export class ComethConnectConnector extends Connector<
     }
   }
 
-  async connect(): Promise<any> {
+  /* eslint-disable */
+  async connect() {
     if (this.walletAddress) {
       await this.wallet.connect(this.walletAddress)
       window.localStorage.setItem('walletAddress', this.walletAddress)
