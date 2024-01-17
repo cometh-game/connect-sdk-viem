@@ -1,6 +1,16 @@
 import { ComethWallet } from '@cometh/connect-sdk'
 import type { Abi } from 'abitype'
-import { BaseError, Chain, Client, encodeFunctionData, EncodeFunctionDataParameters, getContractError, SimulateContractParameters, SimulateContractReturnType, Transport } from 'viem'
+import {
+  BaseError,
+  Chain,
+  Client,
+  encodeFunctionData,
+  EncodeFunctionDataParameters,
+  getContractError,
+  SimulateContractParameters,
+  SimulateContractReturnType,
+  Transport
+} from 'viem'
 
 
 export type SimulateContractWithConnectParameters<
@@ -14,7 +24,6 @@ export type SimulateContractWithConnectParameters<
   TChain,
   TChainOverride
 > & { wallet: ComethWallet }
-
 
 
 export async function simulateContract<
@@ -38,7 +47,6 @@ export async function simulateContract<
     TChain,
     TChainOverride
   >,
-
 ): Promise<
   SimulateContractReturnType<
     TAbi,
@@ -50,10 +58,10 @@ export async function simulateContract<
 
   const calldata = encodeFunctionData({ abi, args, functionName } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
 
-  const transaction = { to: address, value: "0x00", data: calldata, operation: 0 }
-
   try {
-    await wallet.estimateTxGasAndValue(transaction)
+    const { totalGasCost, txValue } = await wallet.estimateTxGasAndValue({ to: address, value: "0x00", data: calldata, operation: 0 })
+
+    await wallet.verifyHasEnoughBalance(totalGasCost, txValue)
 
     const minimizedAbi = (abi as Abi).filter(
       (abiItem) =>
@@ -86,6 +94,4 @@ export async function simulateContract<
       sender: address,
     })
   }
-
-
 }

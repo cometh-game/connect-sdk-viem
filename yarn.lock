@@ -377,10 +377,8 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
-"@cometh/connect-sdk@^1.2.8-dev.1":
+"@cometh/connect-sdk@file:.yalc/@cometh/connect-sdk":
   version "1.2.8-dev.1"
-  resolved "https://registry.yarnpkg.com/@cometh/connect-sdk/-/connect-sdk-1.2.8-dev.1.tgz#945b905d0f8b0b793f34bb82f874f9ba048c00b1"
-  integrity sha512-LY8fmMOGm2H6yl7z/NrrHbIEtynZ4w1AB3TAXJoUD2ExiBadAk2iX7Hl+HE968ZXyIrTeWxFHluGwgStRFNs7Q==
   dependencies:
     "@alembic/ui" "^1.5.4"
     "@babel/traverse" "^7.23.4"
