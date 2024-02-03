@@ -9,27 +9,32 @@ import {
   SendTransactionReturnType,
   Transport
 } from 'viem'
-import { GetAccountParameter } from 'viem/_types/types/account'
 
 import { deepHexlify } from '../utils/utils'
+import { getTransaction } from './getTransaction'
 
-export type SendTransactionsWithConnectParameters<
-  TAccount extends Account | undefined = Account | undefined
-> = {
+export type sendBatchTransactionsWithConnectParameters = {
   transactions: { to: Address; value: bigint; data: Hex }[]
-} & GetAccountParameter<TAccount> & {
-    wallet: ComethWallet
-  }
+} & {
+  wallet: ComethWallet
+}
 
-export async function sendTransactions<
+export async function sendBatchTransactions<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined
 >(
   client: Client<Transport, TChain, TAccount>,
-  args: SendTransactionsWithConnectParameters<TAccount>
+  args: sendBatchTransactionsWithConnectParameters
 ): Promise<SendTransactionReturnType> {
   const { transactions, wallet } = args
 
   const result = await wallet.sendBatchTransactions(deepHexlify(transactions))
-  return result.safeTxHash as Hash
+
+  const txReceipt = await getTransaction({
+    client,
+    wallet,
+    safeTxHash: result.safeTxHash as Hash
+  })
+
+  return txReceipt.transactionHash as Hash
 }

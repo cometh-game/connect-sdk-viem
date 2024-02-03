@@ -70,7 +70,7 @@ export const getTransaction = async ({
   let txFailureEvent
 
   while (!txSuccessEvent && !txFailureEvent) {
-    sleep(2000)
+    sleep(3000)
     txSuccessEvent = await _catchSuccessEvent(
       client,
       from,
@@ -116,6 +116,6 @@ export const getTransaction = async ({
     return txResponse
   }
 
-  sleep(2000)
+  sleep(3000)
   return getTransaction({ client, wallet, safeTxHash })
 }

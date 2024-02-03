@@ -11,12 +11,12 @@ import {
 } from 'viem'
 
 import { getTransaction } from './getTransaction'
+import { sendBatchTransactions, sendBatchTransactionsWithConnectParameters } from './sendBatchTransactions'
 import {
   sendTransaction,
   SendTransactionWithConnectParameters
 } from './sendTransaction'
-import { sendTransactions, SendTransactionsWithConnectParameters } from './sendTransactions'
-import { signMessage, SignMessageReturnType, SignMessageWithConnectParameters } from './signMessage'
+import { signMessage, SignMessageWithConnectParameters } from './signMessage'
 import { simulateContract, SimulateContractWithConnectParameters } from './simulateContract'
 import {
   writeContract,
@@ -193,9 +193,9 @@ export type ComethAccountActions<
   *   value: 10000000000000000n
   * }])
   */
-  sendTransactions: (
-    args: SendTransactionsWithConnectParameters<TSmartAccount>
-  ) => ReturnType<typeof sendTransactions<TChain, TSmartAccount>>,
+  sendBatchTransactions: (
+    args: sendBatchTransactionsWithConnectParameters
+  ) => ReturnType<typeof sendBatchTransactions<TChain, TSmartAccount>>,
 
   signMessage: (
     args: SignMessageWithConnectParameters<TSmartAccount>
@@ -234,11 +234,11 @@ export const connectWalletActions =
           ...args,
           wallet
         } as SendTransactionWithConnectParameters),
-      sendTransactions: (args) =>
-        sendTransactions(client, {
+      sendBatchTransactions: (args) =>
+        sendBatchTransactions(client, {
           ...args,
           wallet
-        } as SendTransactionsWithConnectParameters),
+        } as sendBatchTransactionsWithConnectParameters),
       writeContract: (args) =>
         writeContract(client, {
           ...args,
@@ -256,4 +256,4 @@ export const connectWalletActions =
         } as SimulateContractWithConnectParameters)
     })
 
-export { getTransaction, sendTransaction, sendTransactions, simulateContract, writeContract }
+export { getTransaction, sendBatchTransactions, sendTransaction, simulateContract, writeContract }
