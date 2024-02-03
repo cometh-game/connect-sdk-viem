@@ -18,6 +18,7 @@ import {
 } from './sendTransaction'
 import { signMessage, SignMessageWithConnectParameters } from './signMessage'
 import { simulateContract, SimulateContractWithConnectParameters } from './simulateContract'
+import { verifyMessage, VerifyMessageWithConnectParameters } from './verifyMessage'
 import {
   writeContract,
   WriteContractWithConnectParameters
@@ -201,6 +202,10 @@ export type ComethAccountActions<
     args: SignMessageWithConnectParameters<TSmartAccount>
   ) => ReturnType<typeof signMessage>,
 
+  verifyMessage: (
+    args: VerifyMessageWithConnectParameters
+  ) => ReturnType<typeof verifyMessage>,
+
   simulateContract: <
     TChain extends Chain | undefined,
     const TAbi extends Abi | readonly unknown[],
@@ -221,7 +226,7 @@ export type ComethAccountActions<
 
 
 export const connectWalletActions =
-  (wallet: ComethWallet) =>
+  (wallet: ComethWallet, apiKey: string) =>
     <
       TTransport extends Transport,
       TChain extends Chain | undefined = Chain | undefined,
@@ -249,6 +254,11 @@ export const connectWalletActions =
           ...args,
           wallet
         } as SignMessageWithConnectParameters),
+      verifyMessage: (args) =>
+        verifyMessage(client, {
+          ...args,
+          apiKey
+        } as VerifyMessageWithConnectParameters),
       simulateContract: (args) =>
         simulateContract(client, {
           ...args,
@@ -256,4 +266,4 @@ export const connectWalletActions =
         } as SimulateContractWithConnectParameters)
     })
 
-export { getTransaction, sendBatchTransactions, sendTransaction, simulateContract, writeContract }
+export { getTransaction, sendBatchTransactions, sendTransaction, simulateContract, verifyMessage,writeContract }

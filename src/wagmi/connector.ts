@@ -103,7 +103,7 @@ export class ComethConnectConnector extends Connector<
         baseUrl
       })
 
-      this.client = getConnectViemClient({ wallet: this.wallet })
+      this.client = getConnectViemClient({ wallet: this.wallet, apiKey })
       this.walletAddress = walletAddress
       this.ready = true
     } else {
