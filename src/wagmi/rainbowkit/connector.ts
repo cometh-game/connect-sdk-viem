@@ -5,7 +5,7 @@ import { ComethConnectConnector } from '../connector'
 
 export interface RainbowKitConnectorParams {
   apiKey: string
-  chain: Chain
+  chains: Chain[]
   walletAddress?: string
   disableEoaFallback?: boolean
   encryptionSalt?: string
@@ -18,7 +18,7 @@ export interface RainbowKitConnectorParams {
 
 export const rainbowkitComethConnect = ({
   apiKey,
-  chain,
+  chains,
   walletAddress,
   disableEoaFallback,
   encryptionSalt,
@@ -37,8 +37,18 @@ export const rainbowkitComethConnect = ({
   createConnector: () => {
     return {
       connector: new ComethConnectConnector({
-        chains: [chain],
-        options: { apiKey, walletAddress, disableEoaFallback, encryptionSalt, webAuthnOptions, passKeyName, uiConfig, rpcUrl, baseUrl }
+        chains,
+        options: {
+          apiKey,
+          walletAddress,
+          disableEoaFallback,
+          encryptionSalt,
+          webAuthnOptions,
+          passKeyName,
+          uiConfig,
+          rpcUrl,
+          baseUrl
+        }
       })
     }
   }

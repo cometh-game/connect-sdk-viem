@@ -8,6 +8,8 @@ import {
   ToHexErrorType
 } from 'viem/utils'
 
+import { getConnectViemAccount } from '../account'
+
 export type SignMessageWithConnectParameters<
   TAccount extends Account | undefined = Account | undefined
 > = GetAccountParameter<TAccount> & {
@@ -31,9 +33,7 @@ export async function signMessage<
 ): Promise<SignMessageReturnType> {
   const { message, wallet } = args
 
-  const signature = (await wallet.signMessage(
-    message as string
-  )) as `0x${string}`
+  const account = getConnectViemAccount(wallet)
 
-  return signature
+  return await account.signMessage({ message })
 }

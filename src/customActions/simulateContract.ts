@@ -59,9 +59,6 @@ export async function simulateContract<
   const calldata = encodeFunctionData({ abi, args, functionName } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
 
   try {
-    const { totalGasCost, txValue } = await wallet.estimateTxGasAndValue({ to: address, value: "0x00", data: calldata, operation: 0 })
-
-    await wallet.verifyHasEnoughBalance(totalGasCost, txValue)
 
     const minimizedAbi = (abi as Abi).filter(
       (abiItem) =>
