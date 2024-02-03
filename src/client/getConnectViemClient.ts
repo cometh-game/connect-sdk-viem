@@ -19,8 +19,7 @@ import {
   polygonZkEvmTestnet
 } from 'viem/chains'
 
-import { connectWalletActions } from '../customActions'
-import { ComethAccountActions } from '../customActions/connectWalletActions'
+import { ComethAccountActions, connectWalletActions } from '../customActions'
 import { muster, musterTestnet, redstoneHolesky } from '../customChains'
 
 const supportedChains = [
