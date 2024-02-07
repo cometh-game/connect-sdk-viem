@@ -61,7 +61,7 @@ export class ComethConnectConnector extends Connector<
       ...options_
     }
     super({
-      chains: chains.filter((chain) => isSupportedNetwork(toHex(chain.id))),
+      chains,
       options
     })
     const {
