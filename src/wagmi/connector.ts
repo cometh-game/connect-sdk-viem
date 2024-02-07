@@ -60,10 +60,17 @@ export class ComethConnectConnector extends Connector<
       shimDisconnect: true,
       ...options_
     }
+
+    chains.forEach((chain) => {
+      if (!isSupportedNetwork(toHex(chain.id)))
+        console.warn(`${chain.name} not yet supported by cometh connect`)
+    })
+
     super({
-      chains,
+      chains: chains.filter((chain) => isSupportedNetwork(toHex(chain.id))),
       options
     })
+
     const {
       apiKey,
       walletAddress,
@@ -122,6 +129,8 @@ export class ComethConnectConnector extends Connector<
 
     if (this.options.shimDisconnect)
       this.storage?.setItem(this.shimDisconnectKey, true)
+
+    console.warn(`Cometh connected on ${this.chains[0].name}`)
 
     return {
       account: this.wallet.getAddress() as `0x${string}`,
