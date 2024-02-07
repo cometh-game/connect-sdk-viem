@@ -56,9 +56,6 @@ export async function verifyMessage<TChain extends Chain | undefined>(
 ): Promise<VerifyMessageReturnType> {
   const api = getConnectApi(apiKey)
 
-  console.log(address)
-  console.log(wallet.getAddress())
-
   const walletAddress = address || wallet.getAddress()
 
   const response = await api.post(
