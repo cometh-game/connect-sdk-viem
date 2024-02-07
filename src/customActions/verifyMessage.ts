@@ -1,3 +1,4 @@
+import { ComethWallet } from '@cometh/connect-sdk'
 import type { Address } from 'abitype'
 import {
   ByteArray,
@@ -22,6 +23,7 @@ export type VerifyMessageWithConnectParameters = {
   signature: Hex | ByteArray
 } & {
   apiKey: string
+  wallet: ComethWallet
 }
 
 export type VerifyMessageReturnType = boolean
@@ -44,14 +46,25 @@ export type VerifyMessageErrorType =
  */
 export async function verifyMessage<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
-  { address, message, signature, apiKey }: VerifyMessageWithConnectParameters
+  {
+    address,
+    message,
+    signature,
+    apiKey,
+    wallet
+  }: VerifyMessageWithConnectParameters
 ): Promise<VerifyMessageReturnType> {
   const api = getConnectApi(apiKey)
 
-  const response = await api.post(`/wallets/${address}/is-valid-signature`, {
-    message,
-    signature
-  })
+  const walletAddress = address || wallet.getAddress()
+
+  const response = await api.post(
+    `/wallets/${walletAddress}/is-valid-signature`,
+    {
+      message,
+      signature
+    }
+  )
 
   return response.data.result
 }

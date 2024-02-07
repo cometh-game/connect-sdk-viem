@@ -257,6 +257,7 @@ export const connectWalletActions =
       verifyMessage: (args) =>
         verifyMessage(client, {
           ...args,
+          wallet,
           apiKey
         } as VerifyMessageWithConnectParameters),
       simulateContract: (args) =>

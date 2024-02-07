@@ -56,15 +56,12 @@ export class ComethConnectConnector extends Connector<
     chains: Chain[]
     options: WagmiConfigConnectorParams
   }) {
-    if (chains.length !== 1)
-      throw new Error('Cometh Connect does not support multi network in config')
-
     const options = {
       shimDisconnect: true,
       ...options_
     }
     super({
-      chains,
+      chains: chains.filter((chain) => isSupportedNetwork(toHex(chain.id))),
       options
     })
     const {
