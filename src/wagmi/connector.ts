@@ -130,7 +130,10 @@ export class ComethConnectConnector extends Connector<
     if (this.options.shimDisconnect)
       this.storage?.setItem(this.shimDisconnectKey, true)
 
-    console.warn(`Cometh connected on ${this.chains[0].name}`)
+    console.warn(`Connected to ${this.chains[0].name}`)
+
+    if (this.chains.length > 1)
+      console.warn(`Cometh connect does not support multichain`)
 
     return {
       account: this.wallet.getAddress() as `0x${string}`,
