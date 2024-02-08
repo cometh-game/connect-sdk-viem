@@ -5,7 +5,7 @@ import {
   UIConfig,
   webAuthnOptions
 } from '@cometh/connect-sdk'
-import { fromHex, toHex } from 'viem'
+import { toHex } from 'viem'
 import { Chain, Connector, ConnectorNotFoundError } from 'wagmi'
 
 import {
@@ -40,8 +40,6 @@ export type ComethConnectorOptions = WagmiConfigConnectorParams & {
 type ConnectFunctionConfig = {
   /** Target chain to connect to. */
   chainId?: number
-  /** Api key linked to targeted chain. */
-  providedApiKey?: string
 }
 
 export class ComethConnectConnector extends Connector<
@@ -53,7 +51,6 @@ export class ComethConnectConnector extends Connector<
   ready = true
   wallet?: ComethWallet
   client?: ConnectClient
-  supportedChains?: SupportedNetworks[]
 
   protected shimDisconnectKey = `${this.id}.shimDisconnect`
 
@@ -74,24 +71,11 @@ export class ComethConnectConnector extends Connector<
       options
     })
 
-    this.supportedChains = this.chains.reduce(
-      (chains: SupportedNetworks[], chain: Chain) => {
-        const chainId = toHex(chain.id)
-        if (!isSupportedNetwork(chainId)) {
-          console.warn(`${chain.name} not yet supported by cometh connect`)
-        } else {
-          chains.push(chainId)
-        }
-        return chains
-      },
-      []
-    )
-
     this.ready = true
   }
 
   /* eslint-disable */
-  async connect({ chainId, providedApiKey }: ConnectFunctionConfig = {}) {
+  async connect({ chainId }: ConnectFunctionConfig = {}) {
     const {
       apiKey,
       walletAddress,
@@ -105,31 +89,40 @@ export class ComethConnectConnector extends Connector<
     } = this.options
 
     let selectedChainId: SupportedNetworks
-    let selectedApiKey: string
 
-    if (chainId && providedApiKey) {
-      const providedChainId = chainId.toString()
+    if (chainId) {
+      const providedChainId = toHex(chainId)
 
       if (!isSupportedNetwork(providedChainId))
         throw new Error('Network not supported')
 
       selectedChainId = providedChainId
-      selectedApiKey = providedApiKey
     } else {
-      if (!this.supportedChains)
+      const supportedChains = this.chains.reduce(
+        (chains: SupportedNetworks[], chain: Chain) => {
+          const chainId = toHex(chain.id)
+          if (!isSupportedNetwork(chainId)) {
+            console.warn(`${chain.name} not yet supported by cometh connect`)
+          } else {
+            chains.push(chainId)
+          }
+          return chains
+        },
+        []
+      )
+      if (supportedChains.length === 0)
         throw new Error('Cometh Connect does not support the provided chains')
 
-      if (this.supportedChains.length > 1)
+      if (supportedChains.length > 1)
         console.warn(`Cometh connect does not support multichain`)
 
-      selectedChainId = this.supportedChains[0]
-      selectedApiKey = apiKey
+      selectedChainId = supportedChains[0]
     }
 
     this.wallet = new ComethWallet({
       authAdapter: new ConnectAdaptor({
         chainId: selectedChainId,
-        apiKey: selectedApiKey,
+        apiKey,
         disableEoaFallback,
         encryptionSalt,
         webAuthnOptions,
@@ -185,11 +178,8 @@ export class ComethConnectConnector extends Connector<
     return this.wallet.getAddress() as `0x${string}`
   }
   async getChainId(): Promise<number> {
-    if (!this.supportedChains)
-      throw new Error('Cometh Connect does not support the provided chains')
-
     if (!this.wallet) {
-      return fromHex(this.supportedChains[0], 'number')
+      return this.chains[0].id
     } else {
       return await this.wallet.chainId
     }
