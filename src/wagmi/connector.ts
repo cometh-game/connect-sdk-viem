@@ -48,7 +48,7 @@ export class ComethConnectConnector extends Connector<
 > {
   id = 'cometh-connect'
   name = 'Cometh Connect'
-  ready = true
+  ready = false
   wallet?: ComethWallet
   client?: ConnectClient
 
@@ -88,36 +88,7 @@ export class ComethConnectConnector extends Connector<
       rpcUrl
     } = this.options
 
-    let selectedChainId: SupportedNetworks
-
-    if (chainId) {
-      const providedChainId = toHex(chainId)
-
-      if (!isSupportedNetwork(providedChainId))
-        throw new Error('Network not supported')
-
-      selectedChainId = providedChainId
-    } else {
-      const supportedChains = this.chains.reduce(
-        (chains: SupportedNetworks[], chain: Chain) => {
-          const chainId = toHex(chain.id)
-          if (!isSupportedNetwork(chainId)) {
-            console.warn(`${chain.name} not yet supported by cometh connect`)
-          } else {
-            chains.push(chainId)
-          }
-          return chains
-        },
-        []
-      )
-      if (supportedChains.length === 0)
-        throw new Error('Cometh Connect does not support the provided chains')
-
-      if (supportedChains.length > 1)
-        console.warn(`Cometh connect does not support multichain`)
-
-      selectedChainId = supportedChains[0]
-    }
+    const selectedChainId = this._getSelectedChainId(chainId)
 
     this.wallet = new ComethWallet({
       authAdapter: new ConnectAdaptor({
@@ -163,6 +134,37 @@ export class ComethConnectConnector extends Connector<
         id: this.wallet.chainId,
         unsupported: false
       }
+    }
+  }
+
+  private _getSelectedChainId(chainId?: number) {
+    if (chainId) {
+      const providedChainId = toHex(chainId)
+
+      if (!isSupportedNetwork(providedChainId))
+        throw new Error('Network not supported')
+
+      return providedChainId
+    } else {
+      const supportedChains = this.chains.reduce(
+        (chains: SupportedNetworks[], chain: Chain) => {
+          const chainId = toHex(chain.id)
+          if (!isSupportedNetwork(chainId)) {
+            console.warn(`${chain.name} not yet supported by cometh connect`)
+          } else {
+            chains.push(chainId)
+          }
+          return chains
+        },
+        []
+      )
+      if (supportedChains.length === 0)
+        throw new Error('Cometh Connect does not support the provided chains')
+
+      if (supportedChains.length > 1)
+        console.warn(`Cometh connect does not support multichain`)
+
+      return supportedChains[0]
     }
   }
   disconnect(): Promise<void> {
