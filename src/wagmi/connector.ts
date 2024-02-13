@@ -195,20 +195,14 @@ export class ComethConnectConnector extends Connector<
     return this.client
   }
   async isAuthorized() {
-    try {
-      if (
-        this.options.shimDisconnect &&
-        // If shim does not exist in storage, wallet is disconnected
-        !this.storage?.getItem(this.shimDisconnectKey)
-      )
-        return false
-
-      const provider = await this.getProvider()
-      if (!provider) throw new ConnectorNotFoundError()
-      return true
-    } catch {
+    if (
+      this.options.shimDisconnect &&
+      // If shim does not exist in storage, wallet is disconnected
+      !this.storage?.getItem(this.shimDisconnectKey)
+    )
       return false
-    }
+
+    return true
   }
   protected onAccountsChanged(): void {
     throw new Error('method is not available')
