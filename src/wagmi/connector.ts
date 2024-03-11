@@ -1,17 +1,24 @@
 import {
   ComethWallet,
   ConnectAdaptor,
-  SupportedNetworks,
   UIConfig,
   webAuthnOptions
 } from '@cometh/connect-sdk'
-import { toHex } from 'viem'
-import { Chain, Connector } from 'wagmi'
-
 import {
-  ConnectClient,
-  getConnectViemClient
-} from '../client/getConnectViemClient'
+  CreateConnector,
+  WalletDetailsParams
+} from '@rainbow-me/rainbowkit/dist/wallets/Wallet'
+import { createConnector, ProviderNotFoundError } from '@wagmi/core'
+import {
+  Address,
+  Client,
+  ProviderRpcError,
+  toHex,
+  UserRejectedRequestError
+} from 'viem'
+import { CreateConnectorFn } from 'wagmi'
+
+import { ConnectClient, getConnectPublicViemClient } from '../client'
 import { isSupportedNetwork } from '../utils/utils'
 
 export interface WagmiConfigConnectorParams {
@@ -37,201 +44,178 @@ export type ComethConnectorOptions = WagmiConfigConnectorParams & {
   shimDisconnect?: boolean
 }
 
-type ConnectFunctionConfig = {
-  /** Target chain to connect to. */
-  chainId?: number
+export function getComethConnectConnector(
+  options: ComethConnectorOptions
+): CreateConnector {
+  if (!options.apiKey || options.apiKey === '') {
+    throw new Error(
+      'No apikey found. Please provide an apikey to use Cometh Connect.'
+    )
+  }
+
+  return (walletDetails: WalletDetailsParams): CreateConnectorFn => {
+    return createComethConnectConnector(options, walletDetails)
+  }
 }
 
-export class ComethConnectConnector extends Connector<
-  undefined,
-  ComethConnectorOptions
-> {
-  id = 'cometh-connect'
-  name = 'Cometh Connect'
-  ready = false
-  wallet?: ComethWallet
-  client?: ConnectClient
-  supportedChains?: SupportedNetworks[]
+function createComethConnectConnector(
+  options: ComethConnectorOptions,
+  walletDetails: WalletDetailsParams
+): CreateConnectorFn {
+  return createConnector((config) => ({
+    ...comethConnectConnector(options)(config),
+    ...walletDetails
+  }))
+}
 
-  protected shimDisconnectKey = `${this.id}.shimDisconnect`
+comethConnectConnector.type = 'cometh-connect' as const
+export function comethConnectConnector(
+  parameters: ComethConnectorOptions
+): CreateConnectorFn {
+  const { shimDisconnect = true } = parameters
 
-  constructor({
-    chains,
-    options: options_
-  }: {
-    chains: Chain[]
-    options: WagmiConfigConnectorParams
-  }) {
-    const options = {
-      shimDisconnect: true,
-      ...options_
-    }
-
-    super({
-      chains,
-      options
-    })
-
-    this.ready = true
+  type Provider = ConnectClient | undefined
+  type Properties = {}
+  type StorageItem = {
+    [_ in 'cometh-connect.connected' | `${string}.disconnected`]: true
   }
 
-  /* eslint-disable */
-  async connect({ chainId }: ConnectFunctionConfig = {}) {
-    const {
-      apiKey,
-      walletAddress,
-      disableEoaFallback,
-      encryptionSalt,
-      webAuthnOptions,
-      passKeyName,
-      baseUrl,
-      uiConfig,
-      rpcUrl
-    } = this.options
+  let wallet: ComethWallet
+  let client: Provider
+  let walletAddress: string | undefined
 
-    const selectedChainId = this._getSelectedChainId(chainId)
+  return createConnector<Provider, Properties, StorageItem>((config) => ({
+    id: 'cometh-connect',
+    name: 'Cometh Connect',
+    type: comethConnectConnector.type,
 
-    this.wallet = new ComethWallet({
-      authAdapter: new ConnectAdaptor({
-        chainId: selectedChainId,
-        apiKey,
-        disableEoaFallback,
-        encryptionSalt,
-        webAuthnOptions,
-        passKeyName,
-        rpcUrl,
-        baseUrl
-      }),
-      apiKey,
-      uiConfig,
-      rpcUrl,
-      baseUrl
-    })
+    async connect(): Promise<{
+      accounts: readonly Address[]
+      chainId: number
+    }> {
+      try {
+        if (config.chains.length !== 1)
+          throw new Error(
+            'Cometh Connect does not support multi network in config'
+          )
 
-    this.client = getConnectViemClient({ wallet: this.wallet, apiKey })
+        const {
+          apiKey,
+          disableEoaFallback,
+          encryptionSalt,
+          webAuthnOptions,
+          passKeyName,
+          baseUrl,
+          uiConfig,
+          rpcUrl
+        } = parameters
 
-    if (walletAddress) {
-      await this.wallet.connect(walletAddress)
-      window.localStorage.setItem('walletAddress', walletAddress)
-    } else {
-      const localStorageAddress = window.localStorage.getItem('walletAddress')
+        const chainId = toHex(config.chains[0].id)
 
-      if (localStorageAddress) {
-        await this.wallet.connect(localStorageAddress)
-      } else {
-        await this.wallet.connect()
-        window.localStorage.setItem('walletAddress', this.wallet.getAddress())
-      }
-    }
+        if (isSupportedNetwork(chainId)) {
+          wallet = new ComethWallet({
+            authAdapter: new ConnectAdaptor({
+              chainId,
+              apiKey,
+              disableEoaFallback,
+              encryptionSalt,
+              webAuthnOptions,
+              passKeyName,
+              rpcUrl,
+              baseUrl
+            }),
+            apiKey,
+            uiConfig,
+            rpcUrl,
+            baseUrl
+          })
 
-    if (this.options.shimDisconnect)
-      this.storage?.setItem(this.shimDisconnectKey, true)
-
-    console.warn(`Connected to ${selectedChainId}`)
-
-    return {
-      account: this.wallet.getAddress() as `0x${string}`,
-      chain: {
-        id: this.wallet.chainId,
-        unsupported: false
-      }
-    }
-  }
-
-  private _getSelectedChainId(chainId?: number) {
-    if (chainId) {
-      const providedChainId = toHex(chainId)
-
-      if (!isSupportedNetwork(providedChainId))
-        throw new Error('Network not supported')
-
-      return providedChainId
-    }
-
-    // if autoconnect already provided
-    if (this.supportedChains) {
-      return this.supportedChains[0]
-    } else {
-      return this._getConfigChain()
-    }
-  }
-
-  private _getConfigChain() {
-    this.supportedChains = this.chains.reduce(
-      (chains: SupportedNetworks[], chain: Chain) => {
-        const chainId = toHex(chain.id)
-        if (!isSupportedNetwork(chainId)) {
-          console.warn(`${chain.name} not yet supported by cometh connect`)
+          client = getConnectPublicViemClient({ wallet })
+          walletAddress = parameters.walletAddress
         } else {
-          chains.push(chainId)
+          throw new Error('Network not supported')
         }
-        return chains
-      },
-      []
-    )
-    if (this.supportedChains.length === 0) {
-      console.warn('Cometh Connect does not support any the provided chains')
-      throw new Error('Cometh Connect does not support the provided chains')
-    }
 
-    if (this.supportedChains.length > 1)
-      console.warn(`Cometh connect does not support multichain`)
+        if (walletAddress) {
+          await wallet.connect(walletAddress)
+          window.localStorage.setItem('walletAddress', walletAddress)
+        } else {
+          const localStorageAddress =
+            window.localStorage.getItem('walletAddress')
 
-    return this.supportedChains[0]
-  }
-  disconnect(): Promise<void> {
-    if (!this.wallet) throw new Error('no')
-    // Remove shim signalling wallet is disconnected
-    if (this.options.shimDisconnect)
-      this.storage?.removeItem(this.shimDisconnectKey)
+          if (localStorageAddress) {
+            await wallet.connect(localStorageAddress)
+          } else {
+            await wallet.connect()
+            window.localStorage.setItem('walletAddress', wallet.getAddress())
+          }
+        }
 
-    return this.wallet.logout()
-  }
-  async getAccount(): Promise<`0x${string}`> {
-    if (!this.wallet) throw new Error('no')
-    return this.wallet.getAddress() as `0x${string}`
-  }
-  async getChainId(): Promise<number> {
-    if (!this.wallet) {
-      return this.chains[0].id
-    } else {
-      return await this.wallet.chainId
-    }
-  }
-  /* eslint-disable */
-  async getProvider(): Promise<any> {
-    return this.client
-  }
-  /* eslint-disable */
-  async getWalletClient(): Promise<any> {
-    return this.client
-  }
-  async isAuthorized() {
-    try {
-      if (
-        this.options.shimDisconnect &&
-        // If shim does not exist in storage, wallet is disconnected
-        !this.storage?.getItem(this.shimDisconnectKey)
-      )
+        await config.storage?.removeItem(`${this.id}.disconnected`)
+
+        return {
+          accounts: await this.getAccounts(),
+          chainId: await this.getChainId()
+        }
+      } catch (error) {
+        if (
+          /(user rejected|connection request reset)/i.test(
+            (error as ProviderRpcError)?.message
+          )
+        ) {
+          throw new UserRejectedRequestError(error as Error)
+        }
+        throw error
+      }
+    },
+    disconnect(): Promise<void> {
+      // Remove shim signalling wallet is disconnected
+      if (shimDisconnect)
+        config.storage?.setItem(`${this.id}.disconnected`, true)
+
+      return wallet.logout()
+    },
+    async getAccounts(): Promise<readonly Address[]> {
+      return [wallet.getAddress() as Address]
+    },
+    async getChainId(): Promise<number> {
+      return wallet.chainId
+    },
+    async getProvider(): Promise<Provider> {
+      return client
+    },
+    async getWalletClient(): Promise<Provider> {
+      return client
+    },
+    async getClient(): Promise<Client> {
+      return client as Client
+    },
+    async isAuthorized(): Promise<boolean> {
+      try {
+        const isDisconnected =
+          shimDisconnect &&
+          // If shim exists in storage, connector is disconnected
+          (await config.storage?.getItem(`${this.id}.disconnected`))
+
+        if (isDisconnected) return false
+
+        if (!client) throw new ProviderNotFoundError()
+        return true
+      } catch {
         return false
-
-      this._getConfigChain()
-
-      return true
-    } catch {
-      return false
+      }
+    },
+    onAccountsChanged(): void {
+      throw new Error('method is not available')
+      return
+    },
+    onChainChanged(): void {
+      throw new Error('method is not available')
+      return
+    },
+    onDisconnect(): void {
+      throw new Error('method is not available')
+      return
     }
-  }
-  protected onAccountsChanged(): void {
-    throw new Error('method is not available')
-    return
-  }
-  protected onChainChanged(): void {
-    throw new Error('method is not available')
-    return
-  }
-  protected onDisconnect(): void {
-    throw new Error('method is not available')
-    return
-  }
+  }))
 }

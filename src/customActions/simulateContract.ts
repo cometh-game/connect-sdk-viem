@@ -1,9 +1,12 @@
 import { ComethWallet } from '@cometh/connect-sdk'
 import type { Abi } from 'abitype'
 import {
+  Account,
   BaseError,
   Chain,
   Client,
+  ContractFunctionArgs,
+  ContractFunctionName,
   encodeFunctionData,
   EncodeFunctionDataParameters,
   getContractError,
@@ -15,22 +18,40 @@ import {
 
 export type SimulateContractWithConnectParameters<
   TAbi extends Abi | readonly unknown[] = Abi | readonly unknown[],
-  TFunctionName extends string = string,
+  TFunctionName extends ContractFunctionName<
+    TAbi,
+    "nonpayable" | "payable"
+  > = ContractFunctionName<TAbi, "nonpayable" | "payable">,
+  TArgs extends ContractFunctionArgs<
+    TAbi,
+    "nonpayable" | "payable",
+    TFunctionName
+  > = ContractFunctionArgs<TAbi, "nonpayable" | "payable", TFunctionName>,
   TChain extends Chain | undefined = Chain | undefined,
   TChainOverride extends Chain | undefined = undefined
 > = SimulateContractParameters<
   TAbi,
   TFunctionName,
+  TArgs,
   TChain,
   TChainOverride
 > & { wallet: ComethWallet }
 
 
 export async function simulateContract<
-  const TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
   TChain extends Chain | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  TAccount extends Account | undefined,
+  const TAbi extends Abi | readonly unknown[],
+  TFunctionName extends ContractFunctionName<
+    TAbi,
+    "nonpayable" | "payable"
+  > = ContractFunctionName<TAbi, "nonpayable" | "payable">,
+  TArgs extends ContractFunctionArgs<
+    TAbi,
+    "nonpayable" | "payable",
+    TFunctionName
+  > = ContractFunctionArgs<TAbi, "nonpayable" | "payable", TFunctionName>,
+  TChainOverride extends Chain | undefined = undefined
 >(
   client: Client<Transport, TChain>,
   {
@@ -44,6 +65,7 @@ export async function simulateContract<
   }: SimulateContractWithConnectParameters<
     TAbi,
     TFunctionName,
+    TArgs,
     TChain,
     TChainOverride
   >,
@@ -51,12 +73,14 @@ export async function simulateContract<
   SimulateContractReturnType<
     TAbi,
     TFunctionName,
+    TArgs,
     TChain,
+    TAccount,
     TChainOverride
   >
 > {
 
-  const calldata = encodeFunctionData({ abi, args, functionName } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
+  const calldata = encodeFunctionData<TAbi, TFunctionName>({ abi, args, functionName } as EncodeFunctionDataParameters<TAbi, TFunctionName>)
 
   try {
 
@@ -78,7 +102,9 @@ export async function simulateContract<
     } as unknown as SimulateContractReturnType<
       TAbi,
       TFunctionName,
+      TArgs,
       TChain,
+      TAccount,
       TChainOverride
     >
   } catch (error) {
