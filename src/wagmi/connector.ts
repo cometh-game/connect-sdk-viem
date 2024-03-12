@@ -88,7 +88,14 @@ export function comethConnectConnector(
     id: 'cometh-connect',
     name: 'Cometh Connect',
     type: comethConnectConnector.type,
+    async setup(): Promise<void> {
+      const localStorageAddress = window.localStorage.getItem('walletAddress')
 
+      if (localStorageAddress) {
+        walletAddress = localStorageAddress
+        this.connect()
+      }
+    },
     async connect(): Promise<{
       accounts: readonly Address[]
       chainId: number
