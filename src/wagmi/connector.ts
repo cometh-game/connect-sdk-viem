@@ -68,7 +68,7 @@ function createComethConnectConnector(
   }))
 }
 
-comethConnectConnector.type = 'cometh-connect' as const
+comethConnectConnector.type = 'cometh' as const
 export function comethConnectConnector(
   parameters: ComethConnectorOptions
 ): CreateConnectorFn {
@@ -85,7 +85,7 @@ export function comethConnectConnector(
   let walletAddress: string | undefined
 
   return createConnector<Provider, Properties, StorageItem>((config) => ({
-    id: 'cometh-connect',
+    id: 'cometh',
     name: 'Cometh Connect',
     type: comethConnectConnector.type,
     async setup(): Promise<void> {
@@ -186,7 +186,7 @@ export function comethConnectConnector(
       return [wallet.getAddress() as Address]
     },
     async getChainId(): Promise<number> {
-      return wallet.chainId
+      return wallet?.chainId
     },
     async getProvider(): Promise<Provider> {
       return client
