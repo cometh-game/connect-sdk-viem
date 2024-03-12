@@ -137,7 +137,7 @@ export function comethConnectConnector(
             baseUrl
           })
 
-          client = getConnectViemClient({ wallet })
+          client = getConnectViemClient({ wallet, apiKey })
           walletAddress = parameters.walletAddress
         } else {
           throw new Error('Network not supported')

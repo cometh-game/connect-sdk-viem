@@ -51,11 +51,13 @@ export type ConnectClient<
 
 export type ConnectClientParams = {
   wallet: ComethWallet
+  apiKey: string
   rpc?: string
 }
 
 export const getConnectViemClient = ({
   wallet,
+  apiKey,
   rpc
 }: ConnectClientParams): any => {
   const chain = supportedChains.find(
@@ -65,5 +67,5 @@ export const getConnectViemClient = ({
   return createPublicClient({
     chain,
     transport: http(rpc)
-  }).extend(connectWalletActions(wallet))
+  }).extend(connectWalletActions(wallet, apiKey))
 }

@@ -274,7 +274,7 @@ export type ComethAccountActions<
 
 
 export const connectWalletActions =
-  (wallet: ComethWallet) =>
+  (wallet: ComethWallet, apiKey: string) =>
     <
       TTransport extends Transport,
       TChain extends Chain | undefined = Chain | undefined,
@@ -307,7 +307,8 @@ export const connectWalletActions =
       verifyMessage: (args) =>
         verifyMessage(client, {
           ...args,
-          wallet
+          wallet,
+          apiKey
         } as VerifyMessageWithConnectParameters)
     })
 
