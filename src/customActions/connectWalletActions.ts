@@ -245,6 +245,10 @@ export type ComethAccountActions<
     args: SignMessageWithConnectParameters<TSmartAccount>
   ) => ReturnType<typeof signMessage>,
 
+  verifyMessage: (
+    args: VerifyMessageWithConnectParameters
+  ) => ReturnType<typeof verifyMessage>,
+
   simulateContract: <
     TAbi extends Abi | readonly unknown[] = Abi | readonly unknown[],
     TFunctionName extends ContractFunctionName<
@@ -312,4 +316,4 @@ export const connectWalletActions =
         } as VerifyMessageWithConnectParameters)
     })
 
-export { getTransaction, sendBatchTransactions, sendTransaction, simulateContract, writeContract }
+export { getTransaction, sendBatchTransactions, sendTransaction, simulateContract, verifyMessage,writeContract }
