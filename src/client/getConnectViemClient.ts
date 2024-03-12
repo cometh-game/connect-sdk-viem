@@ -20,7 +20,7 @@ import {
 } from 'viem/chains'
 
 import { ComethAccountActions, connectWalletActions } from '../customActions'
-import { musterTestnet, redstoneHolesky } from '../customChains'
+import { muster, musterTestnet, redstoneHolesky } from '../customChains'
 
 const supportedChains = [
   polygon,
@@ -31,6 +31,7 @@ const supportedChains = [
   gnosisChiado,
   polygonZkEvm,
   polygonZkEvmTestnet,
+  muster,
   musterTestnet,
   redstoneHolesky
 ]
