@@ -1,1 +1,1 @@
-export * from './getConnectPublicViemClient'
+export * from './getConnectViemClient'

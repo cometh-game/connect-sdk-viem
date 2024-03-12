@@ -1,6 +1,6 @@
 import { Wallet } from '@rainbow-me/rainbowkit'
 
-import { ComethConnectorOptions, getComethConnectConnector } from './connector'
+import { ComethConnectorOptions, getComethConnectConnector } from '../connector'
 
 export const comethConnectWallet = (
   options: ComethConnectorOptions

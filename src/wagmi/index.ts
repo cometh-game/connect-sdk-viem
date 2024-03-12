@@ -1,2 +1,2 @@
 export * from './connector'
-export * from './wallet'
+export * from './rainbowkit/wallet'

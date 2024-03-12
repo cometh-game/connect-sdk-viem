@@ -22,6 +22,7 @@ import {
 } from './sendTransaction'
 import { signMessage, SignMessageWithConnectParameters } from './signMessage'
 import { simulateContract, SimulateContractWithConnectParameters } from './simulateContract'
+import { verifyMessage,VerifyMessageWithConnectParameters } from './verifyMessage'
 import {
   writeContract,
   WriteContractWithConnectParameters
@@ -280,7 +281,7 @@ export const connectWalletActions =
       TSmartAccount extends Account | undefined = Account | undefined
     >(
       client: Client<TTransport, TChain, TSmartAccount>
-    ): Partial<any> => ({
+    ): any => ({
       sendTransaction: (args) =>
         sendTransaction(client, {
           ...args,
@@ -291,7 +292,7 @@ export const connectWalletActions =
           ...args,
           wallet
         } as sendBatchTransactionsWithConnectParameters),
-      writeContract: (args): any => 
+      writeContract: (args) => 
         writeContract(client, {...args, wallet } as any),
       signMessage: (args) =>
         signMessage(client, {
@@ -302,7 +303,12 @@ export const connectWalletActions =
         simulateContract(client, {
           ...args,
           wallet
-        } as SimulateContractWithConnectParameters)
+        } as SimulateContractWithConnectParameters),
+      verifyMessage: (args) =>
+        verifyMessage(client, {
+          ...args,
+          wallet
+        } as VerifyMessageWithConnectParameters)
     })
 
 export { getTransaction, sendBatchTransactions, sendTransaction, simulateContract, writeContract }

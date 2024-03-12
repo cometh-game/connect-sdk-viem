@@ -18,7 +18,7 @@ import {
 } from 'viem'
 import { CreateConnectorFn } from 'wagmi'
 
-import { ConnectClient, getConnectPublicViemClient } from '../client'
+import { ConnectClient, getConnectViemClient } from '../client'
 import { isSupportedNetwork } from '../utils/utils'
 
 export interface WagmiConfigConnectorParams {
@@ -130,7 +130,7 @@ export function comethConnectConnector(
             baseUrl
           })
 
-          client = getConnectPublicViemClient({ wallet })
+          client = getConnectViemClient({ wallet })
           walletAddress = parameters.walletAddress
         } else {
           throw new Error('Network not supported')

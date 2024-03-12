@@ -50,7 +50,6 @@ export const writeContract: WriteContract = async (
         ...request
     },
 ) => {
-    console.log('test enter writeContract')
     const data = encodeFunctionData({
         abi,
         args,

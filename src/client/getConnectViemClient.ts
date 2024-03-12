@@ -54,7 +54,7 @@ export type ConnectClientParams = {
   rpc?: string
 }
 
-export const getConnectPublicViemClient = ({
+export const getConnectViemClient = ({
   wallet,
   rpc
 }: ConnectClientParams): any => {

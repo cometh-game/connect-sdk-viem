@@ -1,6 +1,6 @@
 import { getConnectViemAccount } from './account'
 import type { ConnectClient, ConnectClientParams } from './client'
-import { getConnectPublicViemClient } from './client'
+import { getConnectViemClient } from './client'
 import type { WagmiConfigConnectorParams } from './wagmi'
 import {
   comethConnectConnector,
@@ -15,5 +15,5 @@ export {
   comethConnectWallet,
   getComethConnectConnector,
   getConnectViemAccount,
-  getConnectPublicViemClient as getConnectViemClient
+  getConnectViemClient
 }

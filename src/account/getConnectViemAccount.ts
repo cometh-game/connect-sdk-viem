@@ -21,7 +21,7 @@ export const getConnectViemAccount = (
       message: SignableMessage
     }): Promise<Hash> {
       const signedMessage = await wallet.signMessage(message.toString())
-      return `0x${signedMessage}`
+      return signedMessage as Hash
     },
     /* eslint-disable */
     /* @ts-ignore */
