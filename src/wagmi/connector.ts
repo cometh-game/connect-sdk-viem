@@ -75,7 +75,9 @@ export function comethConnectConnector(
   const { shimDisconnect = true } = parameters
 
   type Provider = ConnectClient | undefined
-  type Properties = {}
+  type Properties = {
+    getComethWallet: () => Promise<ComethWallet>
+  }
   type StorageItem = {
     [_ in 'cometh-connect.connected' | `${string}.disconnected`]: true
   }
@@ -196,6 +198,9 @@ export function comethConnectConnector(
     },
     async getClient(): Promise<Client> {
       return client as Client
+    },
+    async getComethWallet(): Promise<ComethWallet> {
+      return wallet
     },
     async isAuthorized(): Promise<boolean> {
       try {
