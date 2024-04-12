@@ -20,6 +20,7 @@ import {
   optimism,
   optimismSepolia,
   polygon,
+  polygonAmoy,
   polygonMumbai
 } from 'viem/chains'
 
@@ -36,6 +37,7 @@ const supportedChains = [
   arbitrumSepolia,
   polygon,
   polygonMumbai,
+  polygonAmoy,
   avalanche,
   avalancheFuji,
   gnosis,
