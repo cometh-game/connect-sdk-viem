@@ -77,7 +77,7 @@ export const getTransaction = async ({
   let txFailureEvent
 
   while (!txSuccessEvent && !txFailureEvent && Date.now() < timeoutLimit) {
-    sleep(3000)
+    await sleep(3000)
     txSuccessEvent = await _catchSuccessEvent(
       client,
       from,
@@ -96,10 +96,19 @@ export const getTransaction = async ({
     transactionHash: string
   ): Promise<TransactionReceipt> => {
     let txResponse: TransactionReceipt | null = null
+
     while (txResponse === null) {
-      txResponse = await client.getTransactionReceipt(transactionHash)
-      sleep(2000)
+      try {
+        txResponse = await client.getTransactionReceipt({
+          hash: transactionHash
+        })
+      } catch {
+        // Do nothing
+      }
+
+      await sleep(2000)
     }
+
     return txResponse
   }
 
@@ -118,6 +127,7 @@ export const getTransaction = async ({
         const txResponse = await getTransactionReceipt(
           relayedTransaction.status.confirmed.hash
         )
+
         return txResponse
       }
       throw new Error(
