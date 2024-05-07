@@ -57,19 +57,26 @@ const _catchFailureEvent = async (
 export const getTransaction = async ({
   client,
   wallet,
-  safeTxHash
+  safeTxHash,
+  relayId,
+  timeout = 60 * 1000
 }: {
   client: any
   wallet: ComethWallet
   safeTxHash: Hash
+  relayId?: string
+  timeout?: number
 }): Promise<TransactionReceipt> => {
+  const startDate = Date.now()
+  const timeoutLimit = new Date(startDate + timeout).getTime()
+
   const currentBlockNumber = await client.getBlockNumber()
   const from = wallet.getAddress() as Address
 
   let txSuccessEvent
   let txFailureEvent
 
-  while (!txSuccessEvent && !txFailureEvent) {
+  while (!txSuccessEvent && !txFailureEvent && Date.now() < timeoutLimit) {
     sleep(3000)
     txSuccessEvent = await _catchSuccessEvent(
       client,
@@ -85,37 +92,43 @@ export const getTransaction = async ({
     )
   }
 
+  const getTransactionReceipt = async (
+    transactionHash: string
+  ): Promise<TransactionReceipt> => {
+    let txResponse: TransactionReceipt | null = null
+    while (txResponse === null) {
+      txResponse = await client.getTransactionReceipt(transactionHash)
+      sleep(2000)
+    }
+    return txResponse
+  }
+
   if (txSuccessEvent) {
-    let txResponse: TransactionReceipt | null = null
-    while (txResponse === null) {
-      sleep(1000)
-      try {
-        txResponse = await client.getTransactionReceipt({
-          hash: txSuccessEvent.transactionHash as Hash
-        })
-      } catch (err) {
-        console.log(err)
-      }
-    }
-
-    return txResponse
+    return await getTransactionReceipt(txSuccessEvent.transactionHash)
   }
+
   if (txFailureEvent) {
-    let txResponse: TransactionReceipt | null = null
-    while (txResponse === null) {
-      sleep(1000)
-      try {
-        txResponse = await client.getTransactionReceipt({
-          hash: txSuccessEvent.transactionHash as Hash
-        })
-      } catch (err) {
-        console.log(err)
-      }
-    }
-
-    return txResponse
+    return await getTransactionReceipt(txFailureEvent.transactionHash)
   }
 
-  sleep(3000)
-  return getTransaction({ client, wallet, safeTxHash })
+  if (relayId) {
+    try {
+      const relayedTransaction = await wallet.getRelayedTransaction(relayId)
+      if (relayedTransaction.status.confirmed) {
+        const txResponse = await getTransactionReceipt(
+          relayedTransaction.status.confirmed.hash
+        )
+        return txResponse
+      }
+      throw new Error(
+        `The transaction has not been confirmed yet on the network, you can track its progress using its relayId:${relayId}`
+      )
+    } catch (e) {
+      throw new Error(
+        `The transaction has not been confirmed yet on the network, you can track its progress using its relayId:${relayId}`
+      )
+    }
+  }
+
+  throw new Error('Error during the relay of the transaction')
 }
