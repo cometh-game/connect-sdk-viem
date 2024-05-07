@@ -33,15 +33,16 @@ export async function sendTransaction<
   const result = await wallet.sendTransaction(
     deepHexlify({
       to: to,
-      value: value || '0x00',
-      data: data || '0x00'
+      value: value || 0n,
+      data: data || 0n
     })
   )
 
   const txReceipt = await getTransaction({
     client,
     wallet,
-    safeTxHash: result.safeTxHash as Hash
+    safeTxHash: result.safeTxHash as Hash,
+    relayId: result.relayId
   })
 
   return txReceipt.transactionHash as Hash
