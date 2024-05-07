@@ -38,7 +38,6 @@ export async function sendTransaction<
     })
   )
 
-  console.log({ result })
 
   const txReceipt = await getTransaction({
     client,
@@ -47,7 +46,6 @@ export async function sendTransaction<
     relayId: result.relayId
   })
 
-  console.log({ txReceipt })
 
   return txReceipt.transactionHash as Hash
 }
