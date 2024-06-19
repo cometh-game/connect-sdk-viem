@@ -29,6 +29,7 @@ export interface WagmiConfigConnectorParams {
   webAuthnOptions?: webAuthnOptions
   passKeyName?: string
   uiConfig?: UIConfig
+  gasToken?: string
   baseUrl?: string
   rpcUrl?: string
 }
@@ -116,6 +117,7 @@ export function comethConnectConnector(
           passKeyName,
           baseUrl,
           uiConfig,
+          gasToken,
           rpcUrl
         } = parameters
 
@@ -135,6 +137,7 @@ export function comethConnectConnector(
             }),
             apiKey,
             uiConfig,
+            gasToken,
             rpcUrl,
             baseUrl
           })

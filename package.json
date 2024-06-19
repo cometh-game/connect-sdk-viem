@@ -1,6 +1,6 @@
 {
   "name": "@cometh/connect-sdk-viem",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Viem SDK Cometh Connect",
@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "@babel/traverse": "^7.23.4",
-    "@cometh/connect-sdk": "^1.2.21",
+    "@cometh/connect-sdk": "^1.2.24",
     "@rainbow-me/rainbowkit": "^2",
     "@types/babel__core": "^7.20.0",
     "viem": "^2",
