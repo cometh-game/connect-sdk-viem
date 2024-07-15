@@ -299,15 +299,15 @@ export const connectWalletActions =
       writeContract: (args) => 
         writeContract(client, {...args, wallet } as any),
       signMessage: (args) =>
-        signMessage(client, {
+        signMessage( {
           ...args,
           wallet
         } as SignMessageWithConnectParameters),
-      simulateContract: (args) =>
-        simulateContract(client, {
-          ...args,
-          wallet
-        } as SimulateContractWithConnectParameters),
+     simulateContract: (args) =>
+            simulateContract(client, {
+              ...args,
+              wallet
+            } as SimulateContractWithConnectParameters),
       verifyMessage: (args) =>
         verifyMessage(client, {
           ...args,
@@ -316,4 +316,6 @@ export const connectWalletActions =
         } as VerifyMessageWithConnectParameters)
     })
 
-export { getTransaction, sendBatchTransactions, sendTransaction, simulateContract, verifyMessage,writeContract }
+
+
+export { getTransaction, sendBatchTransactions, sendTransaction, simulateContract, verifyMessage, writeContract }

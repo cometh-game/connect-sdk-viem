@@ -1,9 +1,16 @@
 import { ComethWallet } from '@cometh/connect-sdk'
 import {
+  Account,
   Address,
   Chain,
+  Client,
+  createClient,
+  createPublicClient,
   GetBlockNumberReturnType,
   Hash,
+  Hex,
+  http,
+  Log,
   parseAbiItem,
   PublicClient,
   TransactionReceipt,
@@ -13,11 +20,11 @@ import {
 import { sleep } from '../utils/utils'
 
 const _catchSuccessEvent = async (
-  client: PublicClient<Transport, Chain>,
+  client: PublicClient,
   address: Address,
   safeTxHash: Hash,
   currentBlockNumber: GetBlockNumberReturnType
-): Promise<any> => {
+): Promise<Log> => {
   const successTransactionLogs = await client.getLogs({
     address,
     event: parseAbiItem(
@@ -30,15 +37,15 @@ const _catchSuccessEvent = async (
     (e) => e.args.txHash == safeTxHash
   )
 
-  return filteredTransactionEvent
+  return filteredTransactionEvent as Log
 }
 
 const _catchFailureEvent = async (
-  client: PublicClient<Transport, Chain>,
+  client: PublicClient,
   address: Address,
   safeTxHash: Hash,
   currentBlockNumber: GetBlockNumberReturnType
-): Promise<any> => {
+): Promise<Log> => {
   const successTransactionLogs = await client.getLogs({
     address,
     event: parseAbiItem(
@@ -51,17 +58,20 @@ const _catchFailureEvent = async (
     (e) => e.args.txHash == safeTxHash
   )
 
-  return filteredTransactionEvent
+  return filteredTransactionEvent as Log
 }
 
-export const getTransaction = async ({
+export const getTransaction = async <
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined
+>({
   client,
   wallet,
   safeTxHash,
   relayId,
   timeout = 60 * 1000
 }: {
-  client: any
+  client: Client<Transport, TChain, TAccount>
   wallet: ComethWallet
   safeTxHash: Hash
   relayId?: string
@@ -70,7 +80,12 @@ export const getTransaction = async ({
   const startDate = Date.now()
   const timeoutLimit = new Date(startDate + timeout).getTime()
 
-  const currentBlockNumber = await client.getBlockNumber()
+  const publicClient = createPublicClient({
+    chain: client.chain,
+    transport: http(client.transport.rpcUrl)
+  }) as PublicClient
+
+  const currentBlockNumber = await publicClient.getBlockNumber()
   const from = wallet.getAddress() as Address
 
   let txSuccessEvent
@@ -79,13 +94,13 @@ export const getTransaction = async ({
   while (!txSuccessEvent && !txFailureEvent && Date.now() < timeoutLimit) {
     await sleep(3000)
     txSuccessEvent = await _catchSuccessEvent(
-      client,
+      publicClient,
       from,
       safeTxHash,
       currentBlockNumber
     )
     txFailureEvent = await _catchFailureEvent(
-      client,
+      publicClient,
       from,
       safeTxHash,
       currentBlockNumber
@@ -99,8 +114,8 @@ export const getTransaction = async ({
 
     while (txResponse === null) {
       try {
-        txResponse = await client.getTransactionReceipt({
-          hash: transactionHash
+        txResponse = await publicClient.getTransactionReceipt({
+          hash: transactionHash as Hex
         })
       } catch {
         // Do nothing

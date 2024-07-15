@@ -33,8 +33,8 @@ export async function sendTransaction<
   const result = await wallet.sendTransaction(
     deepHexlify({
       to: to,
-      value: value || "0x00",
-      data: data || "0x00",
+      value: value || '0x00',
+      data: data || '0x00'
     })
   )
 

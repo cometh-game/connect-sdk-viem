@@ -1,12 +1,5 @@
 import { ComethWallet } from '@cometh/connect-sdk'
-import {
-  Account,
-  Chain,
-  Client,
-  createPublicClient,
-  http,
-  Transport
-} from 'viem'
+import { Account, Chain, Client, createClient, http, Transport } from 'viem'
 import { Prettify } from 'viem/_types/types/utils'
 import {
   arbitrum,
@@ -72,17 +65,25 @@ export type ConnectClientParams = {
   rpc?: string
 }
 
-export const getConnectViemClient = ({
+export const getConnectViemClient = <
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined
+>({
   wallet,
   apiKey,
   rpc
-}: ConnectClientParams): any => {
+}: ConnectClientParams): ConnectClient<transport, chain, account> => {
   const chain = supportedChains.find(
     (chain) => chain.id === wallet.chainId
   ) as Chain
 
-  return createPublicClient({
+  return createClient({
     chain,
     transport: http(rpc)
-  }).extend(connectWalletActions(wallet, apiKey))
+  }).extend(connectWalletActions(wallet, apiKey)) as unknown as ConnectClient<
+    transport,
+    chain,
+    account
+  >
 }
