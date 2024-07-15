@@ -1,5 +1,5 @@
 import { ComethWallet } from '@cometh/connect-sdk'
-import { Account, Chain, Client, Hex, SignableMessage, Transport } from 'viem'
+import { Account, Hex, SignableMessage } from 'viem'
 import { ErrorType } from 'viem/_types/errors/utils'
 import { GetAccountParameter } from 'viem/_types/types/account'
 import {
@@ -24,11 +24,7 @@ export type SignMessageErrorType =
   | ToHexErrorType
   | ErrorType
 
-export async function signMessage<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined
->(
-  client: Client<Transport, TChain, TAccount>,
+export async function signMessage<TAccount extends Account | undefined>(
   args: SignMessageWithConnectParameters<TAccount>
 ): Promise<SignMessageReturnType> {
   const { message, wallet } = args

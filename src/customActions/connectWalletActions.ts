@@ -285,7 +285,7 @@ export const connectWalletActions =
       TSmartAccount extends Account | undefined = Account | undefined
     >(
       client: Client<TTransport, TChain, TSmartAccount>
-    ): any => ({
+    ): ComethAccountActions => ({
       sendTransaction: (args) =>
         sendTransaction(client, {
           ...args,
@@ -299,12 +299,12 @@ export const connectWalletActions =
       writeContract: (args) => 
         writeContract(client, {...args, wallet } as any),
       signMessage: (args) =>
-        signMessage(client, {
+        signMessage( {
           ...args,
           wallet
         } as SignMessageWithConnectParameters),
       simulateContract: (args) =>
-        simulateContract(client, {
+        simulateContract( {
           ...args,
           wallet
         } as SimulateContractWithConnectParameters),
