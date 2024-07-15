@@ -285,7 +285,7 @@ export const connectWalletActions =
       TSmartAccount extends Account | undefined = Account | undefined
     >(
       client: Client<TTransport, TChain, TSmartAccount>
-    ): ComethAccountActions<TChain,TSmartAccount> => ({
+    ): any => ({
       sendTransaction: (args) =>
         sendTransaction(client, {
           ...args,
