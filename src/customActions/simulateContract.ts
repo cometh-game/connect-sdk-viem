@@ -4,6 +4,7 @@ import {
   Account,
   BaseError,
   Chain,
+  Client,
   ContractFunctionArgs,
   ContractFunctionName,
   encodeFunctionData,
@@ -11,6 +12,7 @@ import {
   getContractError,
   SimulateContractParameters,
   SimulateContractReturnType,
+  Transport
 } from 'viem'
 
 
@@ -51,6 +53,7 @@ export async function simulateContract<
   > = ContractFunctionArgs<TAbi, "nonpayable" | "payable", TFunctionName>,
   TChainOverride extends Chain | undefined = undefined
 >(
+  client: Client<Transport, TChain>,
   {
     wallet,
     abi,
