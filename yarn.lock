@@ -415,10 +415,10 @@
     preact "^10.16.0"
     sha.js "^2.4.11"
 
-"@cometh/connect-sdk@^1.2.25":
-  version "1.2.25"
-  resolved "https://registry.yarnpkg.com/@cometh/connect-sdk/-/connect-sdk-1.2.25.tgz#9cbd07006fb77ff7126f436d5beeb160a3d9d287"
-  integrity sha512-OsRtfMCyFksP0Di1ZfgnIT2pVKfyvR/e5WUfqqLNTQfB9S8yDIMN1OggqmZKTVXUAaZ7tEfkrKdWdZ1ltth3qw==
+"@cometh/connect-sdk@^1.2.28":
+  version "1.2.28"
+  resolved "https://registry.yarnpkg.com/@cometh/connect-sdk/-/connect-sdk-1.2.28.tgz#3651bdb8f48441c233d642f9ea6371392b2ebef5"
+  integrity sha512-aQ4RsdMtTUAqq+kAZ2NpocxLfXWu9trhqk/nbopIMi8R9tCVoC7gcpEcEZmcH5Vvlu3Q7Fjlu1+R6Av1QgV16w==
   dependencies:
     "@alembic/ui" "^1.5.4"
     "@babel/traverse" "^7.23.4"
